@@ -14,7 +14,7 @@ import (
 func (h *PGQHandle) NextBatch(queue_name, consumer_name string) (int64, error) {
 	var batch_id sql.NullInt64
 
-	err := h.db.QueryRow(
+	err := h.q.QueryRow(
 		`SELECT pgq.next_batch($1, $2)`,
 		queue_name,
 		consumer_name,
@@ -29,7 +29,7 @@ func (h *PGQHandle) NextBatch(queue_name, consumer_name string) (int64, error) {
 // Returns
 //      List of events.
 func (h *PGQHandle) GetBatchEvents(batch_id int64) ([]Event, error) {
-	rows, err := h.db.Query(
+	rows, err := h.q.Query(
 		`SELECT
             ev_id,
             ev_time,
@@ -88,7 +88,7 @@ func (h *PGQHandle) GetBatchEvents(batch_id int64) ([]Event, error) {
 //      1 if batch was found, 0 otherwise.
 // Calls: None Tables directly manipulated: update - pgq.subscription
 func (h *PGQHandle) FinishBatch(batch_id int64) (out int, err error) {
-	err = h.db.QueryRow(
+	err = h.q.QueryRow(
 		`SELECT pgq.finish_batch($1)`,
 		batch_id,
 	).Scan(&out)

@@ -3,9 +3,12 @@ package pgq
 import (
 	"database/sql"
 	"time"
-
-	_ "github.com/lib/pq"
 )
+
+type Querier interface {
+	Query(query string, args ...interface{}) (*sql.Rows, error)
+	QueryRow(query string, args ...interface{}) *sql.Row
+}
 
 type Event struct {
 	Ev_id     int64
@@ -21,16 +24,9 @@ type Event struct {
 }
 
 type PGQHandle struct {
-	db *sql.DB
+	q Querier
 }
 
-func NewPGQHandle(dsn string) *PGQHandle {
-	db, err := sql.Open("postgres", dsn)
-	if err != nil {
-		panic(err)
-	}
-
-	return &PGQHandle{
-		db: db,
-	}
+func NewPGQHandle(q Querier) *PGQHandle {
+	return &PGQHandle{q: q}
 }

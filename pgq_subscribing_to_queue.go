@@ -15,7 +15,7 @@ package pgq
 // Tables directly manipulated:
 //       None
 func (h *PGQHandle) RegisterConsumer(queue_name, consumer_name string) (out int, err error) {
-	err = h.db.QueryRow(
+	err = h.q.QueryRow(
 		"SELECT pgq.register_consumer($1, $2)",
 		queue_name,
 		consumer_name,
@@ -38,7 +38,7 @@ func (h *PGQHandle) RegisterConsumer(queue_name, consumer_name string) (out int,
 // Tables directly manipulated:
 //      update/insert - pgq.subscription
 func (h *PGQHandle) RegisterConsumerAt(queue_name, consumer_name string, tick_pos int) (out int, err error) {
-	err = h.db.QueryRow(
+	err = h.q.QueryRow(
 		"SELECT pgq.register_consumer_at($1, $2, $3)",
 		queue_name,
 		consumer_name,
@@ -60,7 +60,7 @@ func (h *PGQHandle) RegisterConsumerAt(queue_name, consumer_name string, tick_po
 //      delete - pgq.retry_queue
 //      delete - pgq.subscription
 func (h *PGQHandle) UnregisterConsumer(queue_name, consumer_name string) (out int, err error) {
-	err = h.db.QueryRow(
+	err = h.q.QueryRow(
 		"SELECT pgq.unregister_consumer($1, $2)",
 		queue_name,
 		consumer_name,

@@ -8,7 +8,7 @@ package pgq
 // Returns
 //      Event ID Calls: pgq.insert_event(7)
 func (h *PGQHandle) InsertEvent3(queue_name, ev_type, ev_data string) (out int, err error) {
-	err = h.db.QueryRow(
+	err = h.q.QueryRow(
 		"SELECT pgq.insert_event($1, $2, $3)",
 		queue_name,
 		ev_type,
@@ -32,7 +32,7 @@ func (h *PGQHandle) InsertEvent3(queue_name, ev_type, ev_data string) (out int, 
 // Tables directly manipulated:
 //      insert - pgq.insert_event_raw(11), a C function, inserts into current event_N_M table
 func (h *PGQHandle) InsertEvent7(queue_name, ev_type, ev_data, ev_extra1, ev_extra2, ev_extra3, ev_extra4 string) (out int, err error) {
-	err = h.db.QueryRow(
+	err = h.q.QueryRow(
 		"SELECT pgq.insert_event($1, $2, $3, $4, $5, $6, $7)",
 		queue_name,
 		ev_type,
@@ -56,7 +56,7 @@ func (h *PGQHandle) InsertEvent7(queue_name, ev_type, ev_data, ev_extra1, ev_ext
 // Parameters
 //      x_queue_name    Queue name.
 func (h *PGQHandle) CurrentEventTable(queue_name string) (out string, err error) {
-	err = h.db.QueryRow(
+	err = h.q.QueryRow(
 		"SELECT pgq.current_event_table($1)",
 		queue_name,
 	).Scan(&out)

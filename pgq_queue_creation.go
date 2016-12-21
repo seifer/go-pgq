@@ -13,7 +13,7 @@ package pgq
 //      create  pgq.event_N () inherits (pgq.event_template)
 //      create  pgq.event_N_0 .. pgq.event_N_M () inherits (pgq.event_N)
 func (h *PGQHandle) CreateQueue(queue_name string) (out int, err error) {
-	err = h.db.QueryRow(
+	err = h.q.QueryRow(
 		"SELECT pgq.create_queue($1)",
 		queue_name,
 	).Scan(&out)
@@ -35,7 +35,7 @@ func (h *PGQHandle) CreateQueue(queue_name string) (out int, err error) {
 //      delete  pgq.queue
 //      drop    pgq.event_N (), pgq.event_N_0 .. pgq.event_N_M
 func (h *PGQHandle) DropQueue2(queue_name string, force bool) (out int, err error) {
-	err = h.db.QueryRow(
+	err = h.q.QueryRow(
 		"SELECT pgq.drop_queue($1, $2)",
 		queue_name,
 		force,
@@ -46,7 +46,7 @@ func (h *PGQHandle) DropQueue2(queue_name string, force bool) (out int, err erro
 
 // Drop queue and all associated tables.  No consumers must be listening on the queue.
 func (h *PGQHandle) DropQueue(queue_name string) (out int, err error) {
-	err = h.db.QueryRow(
+	err = h.q.QueryRow(
 		"SELECT pgq.drop_queue($1)",
 		queue_name,
 	).Scan(&out)
@@ -66,7 +66,7 @@ func (h *PGQHandle) DropQueue(queue_name string) (out int, err error) {
 // Tables directly manipulated:
 // 		update - pgq.queue
 func (h *PGQHandle) SetQueueConfig(queue_name, param_name, param_value string) (out int, err error) {
-	err = h.db.QueryRow(
+	err = h.q.QueryRow(
 		"SELECT pgq.set_queue_config($1, $2, $3)",
 		queue_name, param_name, param_value,
 	).Scan(&out)
