@@ -95,3 +95,26 @@ func (h *PGQHandle) FinishBatch(batch_id int64) (out int, err error) {
 
 	return out, nil
 }
+
+// Put the event into retry queue, to be processed later again.
+// Parameters
+//      batch_id      ID of active batch.
+//      event_id      event id
+//      retry_seconds Time when the event should be put back into queue
+// Returns
+//      1   success
+//      0   event already in retry queue
+// Calls:
+//      pgq.event_retry(3a)
+// Tables directly manipulated:
+//      None
+func (h *PGQHandle) EventRetry3b(batch_id, event_id, retry_seconds int64) (out int, err error) {
+	err = h.q.QueryRow(
+		`SELECT pgq.event_retry($1, $2, $3::integer)`,
+		batch_id,
+		event_id,
+		retry_seconds,
+	).Scan(&out)
+
+	return out, nil
+}
