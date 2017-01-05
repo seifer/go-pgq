@@ -93,7 +93,7 @@ func (h *PGQHandle) FinishBatch(batch_id int64) (out int, err error) {
 		batch_id,
 	).Scan(&out)
 
-	return out, nil
+	return
 }
 
 // Put the event into retry queue, to be processed later again.
@@ -116,5 +116,5 @@ func (h *PGQHandle) EventRetry3b(batch_id, event_id, retry_seconds int64) (out i
 		retry_seconds,
 	).Scan(&out)
 
-	return out, nil
+	return
 }
