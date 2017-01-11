@@ -53,7 +53,7 @@ func (h *PGQCOOPHandle) UnregisterSubconsumer(queue_name, consumer_name, subcons
 //      pgq.unregister_consumer(2)
 // Tables directly manipulated:
 // 		delete - pgq.consumer
-func (h *PGQHandle) FullUnregisterSubconsumers(queue_name, consumer_name string) error {
+func (h *PGQHandle) FullUnregisterSubconsumers(queue_name, consumer_name string) (err error) {
 	_, err = h.q.Exec(`
 		do $$
 		DECLARE
