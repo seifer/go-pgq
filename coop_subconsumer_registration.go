@@ -1,5 +1,7 @@
 package pgq
 
+import "fmt"
+
 // Subscribe a subconsumer on a queue.
 // Subconsumer will be registered as another consumer on queue, whose name will be i_consumer_name and i_subconsumer_name combined.
 // Returns
@@ -54,7 +56,7 @@ func (h *PGQCOOPHandle) UnregisterSubconsumer(queue_name, consumer_name, subcons
 // Tables directly manipulated:
 // 		delete - pgq.consumer
 func (h *PGQHandle) FullUnregisterSubconsumers(queue_name, consumer_name string) (err error) {
-	_, err = h.q.Exec(`
+	_, err = h.q.Exec(fmt.Sprintf(`
 		do $$
 		DECLARE
 		    a text[];
@@ -64,19 +66,19 @@ func (h *PGQHandle) FullUnregisterSubconsumers(queue_name, consumer_name string)
 		        SELECT
 		            consumer_name
 		        FROM
-		            pgq.get_consumer_info('$1')
+		            pgq.get_consumer_info('%s')
 		        WHERE
-		            consumer_name != '$2'
+		            consumer_name != '%s'
 		    LOOP
 		        a := ARRAY(SELECT regexp_split_to_array(r.consumer_name, '\.'));
-		        PERFORM pgq_coop.unregister_subconsumer('$3', a[1][1], a[1][2], 1);
+		        PERFORM pgq_coop.unregister_subconsumer('%s', a[1][1], a[1][2], 1);
 		        DELETE FROM consumer WHERE co_name = r.consumer_name;
 		    END LOOP;
 		END $$;`,
 		queue_name,
 		consumer_name,
 		queue_name,
-	)
+	))
 
 	return
 }
