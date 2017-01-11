@@ -2,8 +2,6 @@
 
 package pgq
 
-import "fmt"
-
 // Subscribe consumer on a queue.
 // From this moment forward, consumer will see all events in the queue.
 // Parameters
@@ -67,28 +65,6 @@ func (h *PGQHandle) UnregisterConsumer(queue_name, consumer_name string) (out in
 		queue_name,
 		consumer_name,
 	).Scan(&out)
-
-	return
-}
-
-// Full unsubscribe consumer from the queue.  Also consumer’s retry events are deleted. Non standart function
-// Parameters
-//      queue_name    Name of the queue
-//      consumer_name Name of the consumer
-// Returns
-//      number of (sub)consumers unregistered
-// Calls:
-//      pgq.unregister_consumer(2)
-// Tables directly manipulated:
-//      delete - pgq.retry_queue
-//      delete - pgq.subscription
-// 		delete - pgq.consumer
-func (h *PGQHandle) FullUnregisterConsumer(queue_name, consumer_name string) (out int, err error) {
-	if out, err = h.UnregisterConsumer(queue_name, consumer_name); err != nil {
-		return
-	}
-
-	_, err = h.q.Exec(fmt.Sprintf("DELETE FROM consumer WHERE co_name LIKE '%s.%%'", consumer_name))
 
 	return
 }

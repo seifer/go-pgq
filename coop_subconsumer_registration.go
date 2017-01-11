@@ -42,3 +42,41 @@ func (h *PGQCOOPHandle) UnregisterSubconsumer(queue_name, consumer_name, subcons
 
 	return
 }
+
+// Full unsubscribe subconsumers from the queue. Non standart function
+// Parameters
+//      queue_name    Name of the queue
+//      consumer_name Name of the consumer
+// Returns
+//      None
+// Calls:
+//      pgq.unregister_consumer(2)
+// Tables directly manipulated:
+// 		delete - pgq.consumer
+func (h *PGQHandle) FullUnregisterSubconsumers(queue_name, consumer_name string) error {
+	_, err = h.q.Exec(`
+		do $$
+		DECLARE
+		    a text[];
+		    r RECORD;
+		BEGIN
+		    FOR r IN
+		        SELECT
+		            consumer_name
+		        FROM
+		            pgq.get_consumer_info('$1')
+		        WHERE
+		            consumer_name != '$2'
+		    LOOP
+		        a := ARRAY(SELECT regexp_split_to_array(r.consumer_name, '\.'));
+		        PERFORM pgq_coop.unregister_subconsumer('$3', a[1][1], a[1][2], 1);
+		        DELETE FROM consumer WHERE co_name = r.consumer_name;
+		    END LOOP;
+		END $$;`,
+		queue_name,
+		consumer_name,
+		queue_name,
+	)
+
+	return
+}
