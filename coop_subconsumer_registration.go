@@ -72,7 +72,6 @@ func (h *PGQHandle) FullUnregisterSubconsumers(queue_name, consumer_name string)
 		    LOOP
 		        a := regexp_split_to_array(r.consumer_name, '\.');
 		        PERFORM pgq_coop.unregister_subconsumer('%s', a[1], a[2], 1);
-		        DELETE FROM consumer WHERE co_name = r.consumer_name;
 		    END LOOP;
 		END $$;`,
 		queue_name,
